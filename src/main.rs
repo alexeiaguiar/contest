@@ -9,7 +9,7 @@ fn compare_results<T: PartialEq + Debug>(name: &str, expected: T, actual: T) {
     } else {
         print!("❌");
     }
-    println!("  {} Expected: {:?}, Actual: {:?}", name, expected, actual);
+    println!("  {name} Expected: {expected:?}, Actual: {actual:?}");
 }
 
 mod config;
@@ -18,7 +18,7 @@ mod config;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file_path = std::env::args().nth(1).expect("Please provide a config file path as the first argument");
 
-    println!("Running tests from config file: {}", file_path);
+    println!("Running tests from config file: {file_path}");
 
     let config = crate::config::read_config(&file_path)?;
     for test in config.tests {

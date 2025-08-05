@@ -24,7 +24,7 @@ impl FromStr for TcpConnectionResult {
 }
 
 pub(crate) async fn tcp_probe(host: &str, port: u16) -> Result<TcpConnectionResult, Box<dyn std::error::Error>> {
-    let addr = format!("{}:{}", host, port);
+    let addr = format!("{host}:{port}");
     let timeout_duration = std::time::Duration::from_secs(1);
     match timeout(timeout_duration, TcpStream::connect(addr)).await {
         Ok(Ok(_stream)) => Ok(Connected),

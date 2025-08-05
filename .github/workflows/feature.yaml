@@ -1,10 +1,13 @@
-name: CI
+name: Feature and Bugfix Branch CI
 
 on:
   push:
     branches:
       - 'feature/**'
       - 'bugfix/**'
+
+env:
+  CARGO_TERM_COLOR: always
 
 jobs:
   build-test-lint:
@@ -14,10 +17,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Rust
-        uses: actions/setup-rust@v1
-        with:
-          rust-version: stable
+#      - name: Set up Rust
+#        uses: actions/setup-rust@v1
+#        with:
+#          rust-version: stable
 
       - name: Lint with clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
