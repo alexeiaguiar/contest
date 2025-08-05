@@ -1,4 +1,4 @@
-name: CI
+name: Feature and Bugfix Branch CI
 
 on:
   push:
