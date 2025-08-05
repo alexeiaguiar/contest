@@ -28,7 +28,7 @@ pub struct HttpTest {
 
 pub(crate) fn read_config(file_path: &str) -> Result<TestConfig, Box<dyn Error>> {
     let yaml = std::fs::read_to_string(file_path)?;
-    Ok(serde_yaml::from_str(&yaml).map_err(|e| Box::new(e))?)
+    Ok(serde_yaml::from_str(&yaml).map_err(Box::new)?)
 }
 
 #[cfg(test)]
