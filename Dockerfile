@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Builder stage
-FROM rust:1.77 as builder
+FROM rust:1.83 as builder
 WORKDIR /app
 COPY . .
 RUN cargo build --release
