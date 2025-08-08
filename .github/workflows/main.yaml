@@ -84,3 +84,15 @@ jobs:
           docker manifest annotate public.ecr.aws/f8b4e6a1/contest:latest public.ecr.aws/f8b4e6a1/contest:latest-amd64 --os linux --arch amd64
           docker manifest annotate public.ecr.aws/f8b4e6a1/contest:latest public.ecr.aws/f8b4e6a1/contest:latest-arm64 --os linux --arch arm64
           docker manifest push public.ecr.aws/f8b4e6a1/contest:latest
+
+  test:
+    runs-on: ubuntu-latest
+    container: public.ecr.aws/f8b4e6a1/contest:latest
+    needs: manifest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        run: |
+          /app/contest test.yaml
