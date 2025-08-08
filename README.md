@@ -43,5 +43,4 @@ Running tests from config file: test.yaml
 ✅  HTTP 200 Expected: 200, Actual: 200
 ✅  HTTP 404 Expected: 404, Actual: 404
 ✅  HTTP 400 Expected: 400, Actual: 400
-
 ```

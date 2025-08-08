@@ -1,17 +1,26 @@
-name: Docker Build and Push
+name: Native Multi-Arch Docker Build and Manifest
 
 on:
   push:
     branches:
       - main
 
-permissions:
-  id-token: write   # This is required for requesting the JWT
-  contents: read    # This is required for actions/checkout
-
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+            platform: linux/amd64
+          - arch: arm64
+            runner: ARM64
+            platform: linux/arm64
+
+    outputs:
+      image_tag: ${{ steps.set_tag.outputs.image_tag }}
 
     steps:
       - name: Checkout code
@@ -29,15 +38,37 @@ jobs:
 
       - name: Login to Amazon ECR Public
         uses: aws-actions/amazon-ecr-login@v2
-        env:
-          AWS_REGION: us-east-1
         with:
           registry-type: public
+          region: ca-central-1
+
+      - name: Set image tag
+        id: set_tag
+        run: echo "image_tag=latest" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: public.ecr.aws/f8b4e6a1/alexeiaguiar/contest:latest
-          platforms: linux/amd64,linux/arm64
+          tags: public.ecr.aws/f8b4e6a1/alexeiaguiar/contest:${{ steps.set_tag.outputs.image_tag }}-${{ matrix.arch }}
+          platforms: ${{ matrix.platform }}
+
+  manifest:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Amazon ECR Public
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+          region: ca-central-1
+
+      - name: Create and push manifest
+        uses: docker/manifest-create-push-action@v2
+        with:
+          images: |
+            public.ecr.aws/f8b4e6a1/alexeiaguiar/contest:latest-amd64
+            public.ecr.aws/f8b4e6a1/alexeiaguiar/contest:latest-arm64
+          tags: |
+            public.ecr.aws/f8b4e6a1/alexeiaguiar/contest:latest
