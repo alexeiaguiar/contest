@@ -9,15 +9,26 @@ tests:
       host: google.ca
       port: 81
       expected: timeout
+  - name: TCP refused
+    tcp:
+      host: localhost
+      port: 12345
+      expected: refused
   - name: HTTP 200
     http:
       url: https://httpbin.org/status/200
-      expected: 200
+      expected: connected
+      expected_status: 200
   - name: HTTP 404
     http:
       url: https://httpbin.org/status/404
-      expected: 404
-  - name: HTTP 400
+      expected: connected
+      expected_status: 404
+  - name: HTTP timeout
     http:
-      url: https://httpbin.org/status/400
-      expected: 400
+      url: http://google.ca:81
+      expected: timeout
+  - name: HTTP refused
+    http:
+      url: http://localhost:12345
+      expected: refused

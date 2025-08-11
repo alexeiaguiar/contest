@@ -1,37 +1,28 @@
-use std::fmt::Debug;
-
-mod tcp_probe;
-mod http_probe;
-
-fn compare_results<T: PartialEq + Debug>(name: &str, expected: T, actual: T) {
-    if expected == actual {
-        print!("✅");
-    } else {
-        print!("❌");
-    }
-    println!("  {name} Expected: {expected:?}, Actual: {actual:?}");
-}
-
 mod config;
+mod http_test;
+mod tcp_test;
+mod test_case;
+
+use clap::Parser;
+
+#[derive(Parser)]
+#[command(author, version, about)]
+struct Cli {
+    /// Path to the config file
+    #[arg(value_name = "CONFIG_FILE")]
+    config_file: String,
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let file_path = std::env::args().nth(1).expect("Please provide a config file path as the first argument");
 
-    println!("Running tests from config file: {file_path}");
+    let cli = Cli::parse();
+    println!("Running tests from config file: {}", cli.config_file);
 
-    let config = crate::config::read_config(&file_path)?;
-    for test in config.tests {
-        if let Some(tcp) = test.tcp {
-            let result = tcp_probe::tcp_probe(&tcp.host, tcp.port).await?;
-            // FIXME: Remove this unwrap once the TcpConnectionResult is implemented
-            let expected = tcp.expected.parse().unwrap();
-            compare_results(&test.name, expected, result);
-        }
-        else if let Some(http) = test.http {
-            let status = http_probe::http_probe(&http.url).await?;
-            compare_results(&test.name, http.expected, status.as_u16());
-        }
+    let config = config::read_config(&cli.config_file)?;
+    for mut test in config.tests {
+        test.run().await?;
+        println!("{}", test.compare_results());
     }
 
     Ok(())
