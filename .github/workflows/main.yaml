@@ -80,16 +80,18 @@ jobs:
 
       - name: Create and push manifest
         run: |
+          version=$(grep '^version' Cargo.toml | head -n1 | sed 's/version *= *"\(.*\)"/\1/')
           docker manifest create public.ecr.aws/f8b4e6a1/contest:latest \
-            public.ecr.aws/f8b4e6a1/contest:latest-amd64 \
-            public.ecr.aws/f8b4e6a1/contest:latest-arm64
-          docker manifest annotate public.ecr.aws/f8b4e6a1/contest:latest public.ecr.aws/f8b4e6a1/contest:latest-amd64 --os linux --arch amd64
-          docker manifest annotate public.ecr.aws/f8b4e6a1/contest:latest public.ecr.aws/f8b4e6a1/contest:latest-arm64 --os linux --arch arm64
-          docker manifest push public.ecr.aws/f8b4e6a1/contest:latest
+            public.ecr.aws/f8b4e6a1/contest:$version-amd64 \
+            public.ecr.aws/f8b4e6a1/contest:$version-arm64
+          docker manifest annotate public.ecr.aws/f8b4e6a1/contest:$version public.ecr.aws/f8b4e6a1/contest:$version-amd64 --os linux --arch amd64
+          docker manifest annotate public.ecr.aws/f8b4e6a1/contest:$version public.ecr.aws/f8b4e6a1/contest:$version-arm64 --os linux --arch arm64
+          docker manifest push public.ecr.aws/f8b4e6a1/contest:$version
 
   test_on_pipeline:
     runs-on: ubuntu-latest
-    container: public.ecr.aws/f8b4e6a1/contest:latest
+    # FIXME Try to replace hardcoded version with the one from the Cargo.toml file
+    container: public.ecr.aws/f8b4e6a1/contest:0.1.0
     needs: manifest
     steps:
       - name: Checkout code
