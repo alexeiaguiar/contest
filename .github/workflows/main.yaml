@@ -49,7 +49,9 @@ jobs:
 
       - name: Set image tag
         id: set_tag
-        run: echo "image_tag=latest" >> $GITHUB_OUTPUT
+        run: |
+          version=$(grep '^version' Cargo.toml | head -n1 | sed 's/version *= *"\(.*\)"/\1/')
+          echo "image_tag=$version" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker image
         run: |
@@ -85,7 +87,7 @@ jobs:
           docker manifest annotate public.ecr.aws/f8b4e6a1/contest:latest public.ecr.aws/f8b4e6a1/contest:latest-arm64 --os linux --arch arm64
           docker manifest push public.ecr.aws/f8b4e6a1/contest:latest
 
-  test:
+  test_on_pipeline:
     runs-on: ubuntu-latest
     container: public.ecr.aws/f8b4e6a1/contest:latest
     needs: manifest

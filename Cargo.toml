@@ -8,6 +8,7 @@ tokio = { version = "1", features = ["net", "rt", "time", "rt-multi-thread", "ma
 reqwest = "0.12.22"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_yaml = "0.9.34+deprecated"
+clap = { version = "4.5.43", features = ["derive"] }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
