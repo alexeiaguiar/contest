@@ -42,29 +42,29 @@ impl Test for HttpTest {
     fn compare_results(&self, test_name: &str) -> String {
         let actual = self.actual.as_ref().expect("Test has not been run yet");
         let emoji = if self.expected == *actual {
-            "✅"
+            "✅  Pass"
         } else {
-            "❌"
+            "❌  Fail"
         };
 
         match &self.expected {
             Connected => match self.actual.as_ref().unwrap() {
                 Connected => format!(
-                    "{}  {} Expected: Connected with status {}, Actual: Connected with status {:?}",
+                    "{} - {} Expected: Connected with status {}, Actual: Connected with status {:?}",
                     emoji,
                     test_name,
                     self.expected_status.unwrap(),
                     self.actual_status.unwrap()
                 ),
                 _ => format!(
-                    "{}  {} Expected: Connected, Actual: {:?}",
+                    "{} - {} Expected: Connected, Actual: {:?}",
                     emoji,
                     test_name,
                     self.actual.as_ref().unwrap()
                 ),
             },
             Refused | Timeout => format!(
-                "{}  {} Expected: {:?}, Actual: {:?}",
+                "{} - {} Expected: {:?}, Actual: {:?}",
                 emoji, test_name, self.expected, self.actual.as_ref().unwrap()
             ),
         }

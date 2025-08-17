@@ -56,9 +56,9 @@ jobs:
       - name: Build and push Docker image
         run: |
           docker build \
-            -t public.ecr.aws/f8b4e6a1/contest:${{ steps.set_tag.outputs.image_tag }}-${{ matrix.arch }} \
+            -t public.ecr.aws/alexeiaguiar/contest:${{ steps.set_tag.outputs.image_tag }}-${{ matrix.arch }} \
             -f Dockerfile .
-          docker push public.ecr.aws/f8b4e6a1/contest:${{ steps.set_tag.outputs.image_tag }}-${{ matrix.arch }}
+          docker push public.ecr.aws/alexeiaguiar/contest:${{ steps.set_tag.outputs.image_tag }}-${{ matrix.arch }}
 
   manifest:
     needs: build-and-push
@@ -84,17 +84,17 @@ jobs:
       - name: Create and push manifest
         run: |
           version=$(grep '^version' Cargo.toml | head -n1 | sed 's/version *= *"\(.*\)"/\1/')
-          docker manifest create public.ecr.aws/f8b4e6a1/contest:latest \
-            public.ecr.aws/f8b4e6a1/contest:$version-amd64 \
-            public.ecr.aws/f8b4e6a1/contest:$version-arm64
-          docker manifest annotate public.ecr.aws/f8b4e6a1/contest:$version public.ecr.aws/f8b4e6a1/contest:$version-amd64 --os linux --arch amd64
-          docker manifest annotate public.ecr.aws/f8b4e6a1/contest:$version public.ecr.aws/f8b4e6a1/contest:$version-arm64 --os linux --arch arm64
-          docker manifest push public.ecr.aws/f8b4e6a1/contest:$version
+          docker manifest create public.ecr.aws/alexeiaguiar/contest:latest \
+            public.ecr.aws/alexeiaguiar/contest:$version-amd64 \
+            public.ecr.aws/alexeiaguiar/contest:$version-arm64
+          docker manifest annotate public.ecr.aws/alexeiaguiar/contest:$version public.ecr.aws/alexeiaguiar/contest:$version-amd64 --os linux --arch amd64
+          docker manifest annotate public.ecr.aws/alexeiaguiar/contest:$version public.ecr.aws/alexeiaguiar/contest:$version-arm64 --os linux --arch arm64
+          docker manifest push public.ecr.aws/alexeiaguiar/contest:$version
 
   test_on_pipeline:
     runs-on: ubuntu-latest
     # FIXME Try to replace hardcoded version with the one from the Cargo.toml file
-    container: public.ecr.aws/f8b4e6a1/contest:0.1.0
+    container: public.ecr.aws/alexeiaguiar/contest:0.1.0
     needs: manifest
     steps:
       - name: Checkout code

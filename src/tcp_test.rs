@@ -45,12 +45,12 @@ impl Test for TcpTest {
     fn compare_results(&self, test_name: &str) -> String {
         let actual = self.actual.as_ref().expect("Test has not been run yet");
         let emoji = if self.expected == *actual {
-            "✅"
+            "✅  Pass"
         } else {
-            "❌"
+            "❌  Fail"
         };
         format!(
-            "{}  {} - Expected: {:?}, Actual: {:?}",
+            "{} - {} - Expected: {:?}, Actual: {:?}",
             emoji,
             test_name,
             self.expected,
