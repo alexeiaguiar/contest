@@ -96,9 +96,6 @@ jobs:
           
           docker manifest push public.ecr.aws/alexeiaguiar/contest:$version
           
-          docker tag public.ecr.aws/alexeiaguiar/contest:$version public.ecr.aws/alexeiaguiar/contest:latest
-          docker push public.ecr.aws/alexeiaguiar/contest:latest
-          
 
   test_on_pipeline:
     runs-on: ubuntu-latest
