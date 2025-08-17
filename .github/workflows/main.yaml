@@ -90,6 +90,7 @@ jobs:
           docker manifest annotate public.ecr.aws/alexeiaguiar/contest:$version public.ecr.aws/alexeiaguiar/contest:$version-amd64 --os linux --arch amd64
           docker manifest annotate public.ecr.aws/alexeiaguiar/contest:$version public.ecr.aws/alexeiaguiar/contest:$version-arm64 --os linux --arch arm64
           docker manifest push public.ecr.aws/alexeiaguiar/contest:$version
+          docker manifest push public.ecr.aws/alexeiaguiar/contest:latest
 
   test_on_pipeline:
     runs-on: ubuntu-latest

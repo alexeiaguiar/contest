@@ -38,9 +38,11 @@ tests:
 ## Results
 ```
 Running tests from config file: test.yaml
-✅  TCP connected Expected: Connected, Actual: Connected
-✅  TCP timeout Expected: Timeout, Actual: Timeout
-✅  HTTP 200 Expected: 200, Actual: 200
-✅  HTTP 404 Expected: 404, Actual: 404
-✅  HTTP 400 Expected: 400, Actual: 400
+✅  Pass - TCP connected - Expected: Connected, Actual: Connected
+✅  Pass - TCP timeout - Expected: Timeout, Actual: Timeout
+✅  Pass - TCP refused - Expected: Refused, Actual: Refused
+✅  Pass - HTTP 200 Expected: Connected with status 200, Actual: Connected with status 200
+✅  Pass - HTTP 404 Expected: Connected with status 404, Actual: Connected with status 404
+✅  Pass - HTTP timeout Expected: Timeout, Actual: Timeout
+✅  Pass - HTTP refused Expected: Refused, Actual: Refused
 ```
