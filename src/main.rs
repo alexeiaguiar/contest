@@ -5,6 +5,7 @@ mod test_case;
 
 use clap::Parser;
 use futures::future::join_all;
+use crate::test_case::TestResult::Fail;
 
 #[derive(Parser)]
 #[command(author, version, about)]
@@ -29,9 +30,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .collect::<Vec<_>>();
     join_all(futures).await;
 
+    let mut failed = false;
     for test in config.tests {
-        println!("{}", test.compare_results());
+        let test_summary = test.compare_results();
+        println!("{}", test_summary.details);
+        if test_summary.result == Fail {
+            failed = true;
+        }
     }
 
+    if failed {
+        std::process::exit(1);
+    }
     Ok(())
 }

@@ -1,4 +1,4 @@
-use crate::test_case::TestCase;
+use crate::test_case::{TestCase, TestSummary};
 use serde::Deserialize;
 use std::error::Error;
 
@@ -9,7 +9,7 @@ pub struct TestConfig {
 
 pub trait Test {
     async fn run(&mut self) -> Result<(), Box<dyn Error>>;
-    fn compare_results(&self, test_name: &str) -> String;
+    fn compare_results(&self, test_name: &str) -> TestSummary;
 }
 
 pub(crate) fn read_config(file_path: &str) -> Result<TestConfig, Box<dyn Error>> {

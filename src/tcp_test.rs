@@ -3,6 +3,8 @@ use crate::tcp_test::TcpConnectionResult::{Connected, Refused, Timeout};
 use serde::Deserialize;
 use tokio::net::TcpStream;
 use tokio::time::timeout;
+use crate::test_case::TestSummary;
+use crate::test_case::TestResult::{Fail, Pass};
 
 #[derive(PartialEq, Eq, Debug, serde::Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -42,20 +44,30 @@ impl Test for TcpTest {
         }
     }
 
-    fn compare_results(&self, test_name: &str) -> String {
+    fn compare_results(&self, test_name: &str) -> TestSummary {
         let actual = self.actual.as_ref().expect("Test has not been run yet");
         let emoji = if self.expected == *actual {
             "✅  Pass"
         } else {
             "❌  Fail"
         };
-        format!(
+
+        let details = format!(
             "{} - {} - Expected: {:?}, Actual: {:?}",
             emoji,
             test_name,
             self.expected,
             self.actual.as_ref().unwrap()
-        )
+        );
+
+        TestSummary {
+            result: if self.expected == *actual {
+                Pass
+            } else {
+                Fail
+            },
+            details
+        }
     }
 }
 #[cfg(test)]

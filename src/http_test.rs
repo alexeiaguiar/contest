@@ -4,6 +4,8 @@ use crate::tcp_test::TcpConnectionResult::{Connected, Refused, Timeout};
 use reqwest::StatusCode;
 use serde::Deserialize;
 use std::time::Duration;
+use crate::test_case::TestSummary;
+use crate::test_case::TestResult::{Fail, Pass};
 
 #[derive(Debug, Deserialize)]
 pub struct HttpTest {
@@ -28,18 +30,18 @@ impl Test for HttpTest {
                 Ok(())
             }
             Err(e) if e.is_timeout() => {
-                self.actual = Some(TcpConnectionResult::Timeout);
+                self.actual = Some(Timeout);
                 self.actual_status = None;
                 Ok(())
             }
             Err(_) => {
-                self.actual = Some(TcpConnectionResult::Refused);
+                self.actual = Some(Refused);
                 self.actual_status = None;
                 Ok(())
             }
         }
     }
-    fn compare_results(&self, test_name: &str) -> String {
+    fn compare_results(&self, test_name: &str) -> TestSummary {
         let actual = self.actual.as_ref().expect("Test has not been run yet");
         let emoji = if self.expected == *actual {
             "✅  Pass"
@@ -47,7 +49,7 @@ impl Test for HttpTest {
             "❌  Fail"
         };
 
-        match &self.expected {
+        let details = match &self.expected {
             Connected => match self.actual.as_ref().unwrap() {
                 Connected => format!(
                     "{} - {} Expected: Connected with status {}, Actual: Connected with status {:?}",
@@ -67,6 +69,15 @@ impl Test for HttpTest {
                 "{} - {} Expected: {:?}, Actual: {:?}",
                 emoji, test_name, self.expected, self.actual.as_ref().unwrap()
             ),
+        };
+
+        TestSummary {
+            result: if self.expected == *actual {
+                Pass
+            } else {
+                Fail
+            },
+            details
         }
     }
 }
