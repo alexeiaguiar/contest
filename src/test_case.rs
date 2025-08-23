@@ -11,6 +11,17 @@ pub struct TestCase {
     pub http: Option<HttpTest>,
 }
 
+#[derive(PartialEq, Eq)]
+pub enum TestResult {
+    Pass,
+    Fail,
+}
+
+pub struct TestSummary {
+    pub result: TestResult,
+    pub details: String,
+}
+
 impl TestCase {
     pub async fn run(&mut self) -> Result<(), Box<dyn Error>> {
         let none_type = self.tcp.is_none() && self.http.is_none();
@@ -30,7 +41,7 @@ impl TestCase {
         Ok(())
     }
 
-    pub fn compare_results(&self) -> String {
+    pub fn compare_results(&self) -> TestSummary {
         if let Some(tcp_test) = &self.tcp {
             tcp_test.compare_results(&self.name)
         } else if let Some(http_test) = &self.http {
