@@ -25,7 +25,7 @@ mod tests {
     #[test]
     fn test_config_parsing() {
         let config = read_config("test.yaml").unwrap();
-        assert_eq!(config.tests.len(), 7);
+        assert_eq!(config.tests.len(), 9);
 
         let test_case = &config.tests[0];
         assert_eq!(test_case.name, "TCP connected");
@@ -73,5 +73,21 @@ mod tests {
         let http_test = test_case.http.as_ref().unwrap();
         assert_eq!(http_test.url, "http://localhost:12345");
         assert_eq!(http_test.expected, Refused);
+
+        let test_case = &config.tests[7];
+        assert_eq!(test_case.name, "Follow redirection");
+        let http_test = test_case.http.as_ref().unwrap();
+        assert_eq!(http_test.url, "https://sts.ca-central-1.amazonaws.com");
+        assert_eq!(http_test.expected, Connected);
+        assert_eq!(http_test.expected_status, Some(200));
+        assert_eq!(http_test.redirect, None);
+
+        let test_case = &config.tests[8];
+        assert_eq!(test_case.name, "Do not follow redirection");
+        let http_test = test_case.http.as_ref().unwrap();
+        assert_eq!(http_test.url, "https://sts.ca-central-1.amazonaws.com");
+        assert_eq!(http_test.expected, Connected);
+        assert_eq!(http_test.expected_status, Some(302));
+        assert_eq!(http_test.redirect, Some(false));
     }
 }
