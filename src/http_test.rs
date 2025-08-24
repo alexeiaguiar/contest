@@ -4,6 +4,7 @@ use crate::tcp_test::TcpConnectionResult::{Connected, Refused, Timeout};
 use reqwest::StatusCode;
 use serde::Deserialize;
 use std::time::Duration;
+use reqwest::redirect::Policy;
 use crate::test_case::TestSummary;
 use crate::test_case::TestResult::{Fail, Pass};
 
@@ -12,6 +13,7 @@ pub struct HttpTest {
     pub url: String,
     pub expected: TcpConnectionResult,
     pub expected_status: Option<u16>,
+    pub redirect: Option<bool>,
     #[serde(skip, default)]
     pub actual: Option<TcpConnectionResult>,
     #[serde(skip, default)]
@@ -20,9 +22,17 @@ pub struct HttpTest {
 
 impl Test for HttpTest {
     async fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        let redirect_policy = if self.redirect.unwrap_or(true) {
+            Policy::default()
+        } else {
+            Policy::none()
+        };
+
         let client = reqwest::Client::builder()
+            .redirect(redirect_policy)
             .timeout(Duration::from_secs(2))
             .build()?;
+
         match client.get(&self.url).send().await {
             Ok(response) => {
                 self.actual = Some(Connected);
@@ -43,7 +53,10 @@ impl Test for HttpTest {
     }
     fn compare_results(&self, test_name: &str) -> TestSummary {
         let actual = self.actual.as_ref().expect("Test has not been run yet");
-        let emoji = if self.expected == *actual {
+
+        let pass = self.expected == *actual && self.expected_status == self.actual_status.map(|s| s.as_u16());
+
+        let emoji = if pass {
             "✅  Pass"
         } else {
             "❌  Fail"
@@ -72,7 +85,7 @@ impl Test for HttpTest {
         };
 
         TestSummary {
-            result: if self.expected == *actual {
+            result: if pass {
                 Pass
             } else {
                 Fail
@@ -95,6 +108,7 @@ mod tests {
             url: "https://httpbin.org/status/200".to_string(),
             expected: Connected,
             expected_status: Some(200),
+            redirect: None,
             actual: None,
             actual_status: None,
         };
@@ -109,6 +123,7 @@ mod tests {
             url: "https://httpbin.org/status/404".to_string(),
             expected: Connected,
             expected_status: Some(404),
+            redirect: None,
             actual: None,
             actual_status: None,
         };
@@ -123,6 +138,7 @@ mod tests {
             url: "http://google.ca:81".to_string(),
             expected: Timeout,
             expected_status: None,
+            redirect: None,
             actual: None,
             actual_status: None,
         };
@@ -137,6 +153,7 @@ mod tests {
             url: "http://localhost:12345".to_string(),
             expected: Refused,
             expected_status: None,
+            redirect: None,
             actual: None,
             actual_status: None,
         };

@@ -32,3 +32,14 @@ tests:
     http:
       url: http://localhost:12345
       expected: refused
+  - name: Follow redirection
+    http:
+      url: https://sts.ca-central-1.amazonaws.com
+      expected: connected
+      expected_status: 200
+  - name: Do not follow redirection
+    http:
+      url: https://sts.ca-central-1.amazonaws.com
+      expected: connected
+      expected_status: 302
+      redirect: false
