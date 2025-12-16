@@ -108,4 +108,4 @@ jobs:
 
       - name: Run tests
         run: |
-          /app/contest test.yaml
+          /app/contest tests/complete-config.yaml
