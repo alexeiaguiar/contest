@@ -100,7 +100,7 @@ jobs:
   test_on_pipeline:
     runs-on: ubuntu-latest
     # FIXME Try to replace hardcoded version with the one from the Cargo.toml file
-    container: public.ecr.aws/alexeiaguiar/contest:0.1.0
+    container: public.ecr.aws/alexeiaguiar/contest:1.0.0-alpha.1
     needs: manifest
     steps:
       - name: Checkout code

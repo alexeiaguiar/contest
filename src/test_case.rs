@@ -1,4 +1,4 @@
-use crate::config::Test;
+use crate::config::{Parameters, Test};
 use crate::http_test::HttpTest;
 use crate::tcp_test::TcpTest;
 use serde::Deserialize;
@@ -23,7 +23,7 @@ pub struct TestSummary {
 }
 
 impl TestCase {
-    pub async fn run(&mut self) -> Result<(), Box<dyn Error>> {
+    pub async fn run(&mut self, parameters: &Option<Parameters>) -> Result<(), Box<dyn Error>> {
         let none_type = self.tcp.is_none() && self.http.is_none();
         let both_types = self.tcp.is_some() && self.http.is_some();
         if none_type || both_types {
@@ -33,10 +33,10 @@ impl TestCase {
         }
 
         if let Some(tcp_test) = &mut self.tcp {
-            tcp_test.run().await?;
+            tcp_test.run(parameters).await?;
         }
         if let Some(http_test) = &mut self.http {
-            http_test.run().await?;
+            http_test.run(parameters).await?;
         }
         Ok(())
     }

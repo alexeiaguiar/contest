@@ -4,11 +4,17 @@ use std::error::Error;
 
 #[derive(Debug, Deserialize)]
 pub struct TestConfig {
+    pub parameters: Option<Parameters>,
     pub tests: Vec<TestCase>,
 }
 
+#[derive(PartialEq, Debug, Deserialize)]
+pub struct Parameters {
+    pub timeout_seconds: Option<u64>
+}
+
 pub trait Test {
-    async fn run(&mut self) -> Result<(), Box<dyn Error>>;
+    async fn run(&mut self, parameters: &Option<Parameters>) -> Result<(), Box<dyn Error>>;
     fn compare_results(&self, test_name: &str) -> TestSummary;
 }
 
@@ -23,8 +29,11 @@ mod tests {
     use crate::tcp_test::TcpConnectionResult::{Connected, Refused, Timeout};
 
     #[test]
-    fn test_config_parsing() {
-        let config = read_config("test.yaml").unwrap();
+    fn test_complete_config_parsing() {
+        let config = read_config("tests/complete-config.yaml").unwrap();
+
+        assert_eq!(config.parameters, Some(Parameters { timeout_seconds: Some(5) }));
+
         assert_eq!(config.tests.len(), 9);
 
         let test_case = &config.tests[0];
@@ -51,14 +60,14 @@ mod tests {
         let test_case = &config.tests[3];
         assert_eq!(test_case.name, "HTTP 200");
         let http_test = test_case.http.as_ref().unwrap();
-        assert_eq!(http_test.url, "https://httpbin.org/status/200");
+        assert_eq!(http_test.url, "https://postman-echo.com/status/200");
         assert_eq!(http_test.expected, Connected);
         assert_eq!(http_test.expected_status, Some(200));
 
         let test_case = &config.tests[4];
         assert_eq!(test_case.name, "HTTP 404");
         let http_test = test_case.http.as_ref().unwrap();
-        assert_eq!(http_test.url, "https://httpbin.org/status/404");
+        assert_eq!(http_test.url, "https://postman-echo.com/status/404");
         assert_eq!(http_test.expected, Connected);
         assert_eq!(http_test.expected_status, Some(404));
 
@@ -89,5 +98,29 @@ mod tests {
         assert_eq!(http_test.expected, Connected);
         assert_eq!(http_test.expected_status, Some(302));
         assert_eq!(http_test.redirect, Some(false));
+    }
+
+    #[test]
+    fn test_required_fields_config_parsing() {
+        let config = read_config("tests/required-fields-config.yaml").unwrap();
+
+        assert_eq!(config.parameters, None);
+
+        assert_eq!(config.tests.len(), 1);
+
+        let test_case = &config.tests[0];
+        assert_eq!(test_case.name, "TCP connected");
+        let tcp_test = test_case.tcp.as_ref().unwrap();
+        assert_eq!(tcp_test.host, "google.ca");
+        assert_eq!(tcp_test.port, 80);
+        assert_eq!(tcp_test.expected, Connected);
+    }
+
+    #[test]
+    fn test_empty_parameters_config_parsing() {
+        let config = read_config("tests/empty-config.yaml").unwrap();
+
+        assert_eq!(config.parameters, Some(Parameters { timeout_seconds: None }));
+        assert_eq!(config.tests.len(), 0);
     }
 }

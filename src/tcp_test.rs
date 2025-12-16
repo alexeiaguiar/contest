@@ -1,4 +1,5 @@
-use crate::config::Test;
+use std::time::Duration;
+use crate::config::{Parameters, Test};
 use crate::tcp_test::TcpConnectionResult::{Connected, Refused, Timeout};
 use serde::Deserialize;
 use tokio::net::TcpStream;
@@ -24,9 +25,15 @@ pub struct TcpTest {
 }
 
 impl Test for TcpTest {
-    async fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    async fn run(&mut self, parameters: &Option<Parameters>) -> Result<(), Box<dyn std::error::Error>> {
         let addr = format!("{}:{}", self.host, self.port);
-        let timeout_duration = std::time::Duration::from_secs(1);
+        let timeout_duration = Duration::from_secs(
+            parameters
+                .as_ref()
+                .and_then(|p| p.timeout_seconds)
+                .unwrap_or(5)
+        );
+
         match timeout(timeout_duration, TcpStream::connect(addr)).await {
             Ok(Ok(_stream)) => {
                 self.actual = Some(Connected);
@@ -83,7 +90,7 @@ mod tests {
             expected: Connected,
             actual: None,
         };
-        test.run().await.unwrap();
+        test.run(&None).await.unwrap();
         assert_eq!(Connected, test.actual.unwrap());
     }
 
@@ -95,7 +102,11 @@ mod tests {
             expected: Timeout,
             actual: None,
         };
-        test.run().await.unwrap();
+
+        let parameters = Some(Parameters {
+            timeout_seconds: Some(1),
+        });
+        test.run(&parameters).await.unwrap();
         assert_eq!(Timeout, test.actual.unwrap());
     }
 
@@ -107,7 +118,7 @@ mod tests {
             expected: Refused,
             actual: None,
         };
-        test.run().await.unwrap();
+        test.run(&None).await.unwrap();
         assert_eq!(Refused, test.actual.unwrap());
     }
 }
