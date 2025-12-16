@@ -1,0 +1,6 @@
+tests:
+  - name: TCP connected
+    tcp:
+      host: google.ca
+      port: 80
+      expected: connected

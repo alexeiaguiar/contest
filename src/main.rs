@@ -22,11 +22,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Running tests from config file: {}", cli.config_file);
 
     let mut config = config::read_config(&cli.config_file)?;
+    let parameters = config.parameters;
 
     let futures = config
         .tests
         .iter_mut()
-        .map(|test| test.run())
+        .map(|test| test.run(&parameters))
         .collect::<Vec<_>>();
     join_all(futures).await;
 

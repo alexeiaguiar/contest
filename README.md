@@ -10,6 +10,9 @@ contest <config_file>
 
 ## Example configuration file
 ```yaml
+# Optional parameters
+parameters:
+  timeout: 5s
 tests:
   - name: TCP connected
     tcp:

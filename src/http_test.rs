@@ -1,4 +1,4 @@
-use crate::config::Test;
+use crate::config::{Parameters, Test};
 use crate::tcp_test::TcpConnectionResult;
 use crate::tcp_test::TcpConnectionResult::{Connected, Refused, Timeout};
 use reqwest::StatusCode;
@@ -21,17 +21,20 @@ pub struct HttpTest {
 }
 
 impl Test for HttpTest {
-    async fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    async fn run(&mut self, parameters: &Option<Parameters>) -> Result<(), Box<dyn std::error::Error>> {
         let redirect_policy = if self.redirect.unwrap_or(true) {
             Policy::default()
         } else {
             Policy::none()
         };
 
-        let client = reqwest::Client::builder()
-            .redirect(redirect_policy)
-            .timeout(Duration::from_secs(2))
-            .build()?;
+        let client_builder = reqwest::Client::builder()
+            .redirect(redirect_policy);
+
+        let client = match parameters.as_ref().and_then(|p| p.timeout_seconds) {
+            None => client_builder,
+            Some(timeout_seconds) => client_builder.timeout(Duration::from_secs(timeout_seconds))
+        }.build()?;
 
         match client.get(&self.url).send().await {
             Ok(response) => {
@@ -97,7 +100,7 @@ impl Test for HttpTest {
 
 #[cfg(test)]
 mod tests {
-    use crate::config::Test;
+    use crate::config::{Test};
     use crate::http_test::HttpTest;
     use crate::tcp_test::TcpConnectionResult::{Connected, Refused, Timeout};
     use reqwest::StatusCode;
@@ -112,7 +115,8 @@ mod tests {
             actual: None,
             actual_status: None,
         };
-        test.run().await.unwrap();
+
+        test.run(&None).await.unwrap();
         assert_eq!(Connected, test.actual.unwrap());
         assert_eq!(Some(StatusCode::OK), test.actual_status);
     }
@@ -127,7 +131,7 @@ mod tests {
             actual: None,
             actual_status: None,
         };
-        test.run().await.unwrap();
+        test.run(&None).await.unwrap();
         assert_eq!(Connected, test.actual.unwrap());
         assert_eq!(Some(StatusCode::NOT_FOUND), test.actual_status);
     }
@@ -142,7 +146,10 @@ mod tests {
             actual: None,
             actual_status: None,
         };
-        test.run().await.unwrap();
+        let parameters = Some(crate::config::Parameters {
+            timeout_seconds: Some(1),
+        });
+        test.run(&parameters).await.unwrap();
         assert_eq!(Timeout, test.actual.unwrap());
         assert_eq!(None, test.actual_status);
     }
@@ -157,7 +164,7 @@ mod tests {
             actual: None,
             actual_status: None,
         };
-        test.run().await.unwrap();
+        test.run(&None).await.unwrap();
         assert_eq!(Refused, test.actual.unwrap());
         assert_eq!(None, test.actual_status);
     }

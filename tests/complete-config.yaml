@@ -1,3 +1,5 @@
+parameters:
+  timeout_seconds: 5
 tests:
   - name: TCP connected
     tcp:
