@@ -60,14 +60,14 @@ mod tests {
         let test_case = &config.tests[3];
         assert_eq!(test_case.name, "HTTP 200");
         let http_test = test_case.http.as_ref().unwrap();
-        assert_eq!(http_test.url, "https://httpbin.org/status/200");
+        assert_eq!(http_test.url, "https://postman-echo.com/status/200");
         assert_eq!(http_test.expected, Connected);
         assert_eq!(http_test.expected_status, Some(200));
 
         let test_case = &config.tests[4];
         assert_eq!(test_case.name, "HTTP 404");
         let http_test = test_case.http.as_ref().unwrap();
-        assert_eq!(http_test.url, "https://httpbin.org/status/404");
+        assert_eq!(http_test.url, "https://postman-echo.com/status/404");
         assert_eq!(http_test.expected, Connected);
         assert_eq!(http_test.expected_status, Some(404));
 

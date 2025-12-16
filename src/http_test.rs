@@ -108,7 +108,7 @@ mod tests {
     #[tokio::test]
     async fn test_when_http_probe_then_success() {
         let mut test = HttpTest {
-            url: "https://httpbin.org/status/200".to_string(),
+            url: "https://postman-echo.com/status/200".to_string(),
             expected: Connected,
             expected_status: Some(200),
             redirect: None,
@@ -124,7 +124,7 @@ mod tests {
     #[tokio::test]
     async fn test_when_http_probe_then_not_found() {
         let mut test = HttpTest {
-            url: "https://httpbin.org/status/404".to_string(),
+            url: "https://postman-echo.com/status/404".to_string(),
             expected: Connected,
             expected_status: Some(404),
             redirect: None,

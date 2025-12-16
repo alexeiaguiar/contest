@@ -26,15 +26,15 @@ tests:
       expected: timeout
   - name: HTTP 200
     http:
-      url: https://httpbin.org/status/200
+      url: https://postman-echo.com/status/200
       expected: 200
   - name: HTTP 404
     http:
-      url: https://httpbin.org/status/404
+      url: https://postman-echo.com/status/404
       expected: 404
   - name: HTTP 400
     http:
-      url: https://httpbin.org/status/400
+      url: https://postman-echo.com/status/400
       expected: 400
 ```
 
